@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+package rates;
+
+option go_package = "garantex/internal/grpc";
+
+service RatesService {
+  rpc GetRates(google.protobuf.Empty) returns(RatesResponse);
+}
+
+message RatesResponse {
+    uint32 timestamp = 1;
+    float askPrice = 2;
+    float bidPrice = 3;
+}
+

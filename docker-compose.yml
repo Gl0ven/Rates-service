@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+
+  app:
+    container_name: rates
+    build: .
+    entrypoint: sh -c "./entrypoint.sh"
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "/bin/grpc_health_probe", "-addr=${APP_HOST}:${APP_PORT}"]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  db:
+    container_name: db_rates
+    image: postgres:alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    logging:
+      options:
+        max-size: '10m'
+        max-file: '3'
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
